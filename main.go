@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/GDSC-UIT/egreenbin-api/component"
 	middleware "github.com/GDSC-UIT/egreenbin-api/middlewares"
@@ -11,17 +12,24 @@ import (
 	"github.com/GDSC-UIT/egreenbin-api/modules/person/repositories"
 	"github.com/GDSC-UIT/egreenbin-api/modules/person/usecases"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 // const uri = "mongodb://admin:123123123@localhost:27017/?maxPoolSize=20&w=majority"
-const uri = "mongodb+srv://admin:123123123@gdsc.uytfb9v.mongodb.net/?retryWrites=true&w=majority"
+// const uri = "mongodb+srv://admin:123123123@gdsc.uytfb9v.mongodb.net/?retryWrites=true&w=majority"
 
 func main() {
 	// Set up the MongoDB connection
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Some error occured. Err: %s", err)
+	}
+	uriDb := os.Getenv("CONNECTION_STRING")
+
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uriDb))
 	if err != nil {
 		panic(err)
 	}
