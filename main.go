@@ -7,10 +7,8 @@ import (
 	"os"
 
 	"github.com/GDSC-UIT/egreenbin-api/component"
+	"github.com/GDSC-UIT/egreenbin-api/handlers"
 	middleware "github.com/GDSC-UIT/egreenbin-api/middlewares"
-	"github.com/GDSC-UIT/egreenbin-api/modules/person/delivery"
-	"github.com/GDSC-UIT/egreenbin-api/modules/person/repositories"
-	"github.com/GDSC-UIT/egreenbin-api/modules/person/usecases"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -46,14 +44,13 @@ func main() {
 
 	router := gin.Default()
 	db := client.Database("egreenbin")
+
 	appContext := component.NewAppContext(db)
 
 	router.Use(middleware.Recover(appContext))
-	personRepo := repositories.NewPersonRepository(db)
-	personUseCase := usecases.NewPersonUsecase(personRepo)
 
 	apiR := router.Group("/api")
-	delivery.NewPersonHandler(apiR, appContext, personUseCase)
+	handlers.NewPersonHandler(apiR, appContext, db)
 
 	log.Fatal(router.Run(":3000"))
 }

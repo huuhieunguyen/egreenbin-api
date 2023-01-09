@@ -1,29 +1,27 @@
-package delivery
+package handlers
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/GDSC-UIT/egreenbin-api/common"
 	"github.com/GDSC-UIT/egreenbin-api/component"
 	"github.com/GDSC-UIT/egreenbin-api/models"
-	"github.com/GDSC-UIT/egreenbin-api/modules/person/usecases"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
-
-// ResponseError represent the reseponse error struct
-type ResponseError struct {
-	Message string `json:"message"`
-}
 
 // PersonHandler  represent the httphandler for article
 type PersonHandler struct {
-	PersonUsecase usecases.PersonUsecase
+	DB *mongo.Database
 }
 
 // PersonHandler will initialize the articles/ resources endpoint
-func NewPersonHandler(gin *gin.RouterGroup, appCtx component.AppContext, us usecases.PersonUsecase) {
+func NewPersonHandler(gin *gin.RouterGroup, appCtx component.AppContext, db *mongo.Database) {
 	handler := &PersonHandler{
-		PersonUsecase: us,
+		DB: db,
 	}
 	persons := gin.Group("/persons")
 	{
@@ -38,13 +36,18 @@ func NewPersonHandler(gin *gin.RouterGroup, appCtx component.AppContext, us usec
 // FetchArticle will fetch the article based on given params
 func (a *PersonHandler) GetPersons(c *gin.Context) {
 	ctx := c.Request.Context()
-
-	listAr, err := a.PersonUsecase.GetAll(ctx)
+	var persons []models.Person
+	cursor, err := a.DB.Collection("persons").Find(context.TODO(), bson.M{})
 	if err != nil {
+		panic(err)
+	}
+
+	if err = cursor.All(ctx, &persons); err != nil {
+		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, common.SimpleSuccessResponse(listAr))
+	c.JSON(http.StatusOK, common.SimpleSuccessResponse(persons))
 }
 
 // GetByID will get persons by given id
@@ -53,12 +56,19 @@ func (a *PersonHandler) GetByID(c *gin.Context) {
 
 	id := c.Param("id")
 
-	person, err := a.PersonUsecase.GetByID(ctx, id)
+	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
+		c.JSON(http.StatusBadRequest, nil)
 		return
 	}
-
-	c.JSON(http.StatusOK, person)
+	// Find the user with the matching ID in the "persons" collection
+	var person models.Person
+	err = a.DB.Collection("persons").FindOne(ctx, bson.M{"_id": objectID}).Decode(&person)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, nil)
+		return
+	}
+	c.JSON(http.StatusOK, common.SimpleSuccessResponse(person))
 }
 
 // Create person will create a new person based on given request body
@@ -70,8 +80,10 @@ func (a *PersonHandler) Create(c *gin.Context) {
 		return
 	}
 
-	err := a.PersonUsecase.Create(ctx, &person)
+	person.ID = primitive.NewObjectID()
+	_, err := a.DB.Collection("persons").InsertOne(ctx, person)
 	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
@@ -86,13 +98,24 @@ func (a *PersonHandler) Update(c *gin.Context) {
 	var requestBody models.Person
 
 	if err := c.BindJSON(&requestBody); err != nil {
-		// DO SOMETHING WITH THE ERROR
+		c.JSON(http.StatusBadRequest, err)
+		return
 	}
-	err := a.PersonUsecase.Update(ctx, id, map[string]interface{}{
+	updates := map[string]interface{}{
 		"name":  requestBody.Name,
 		"genre": requestBody.Genre,
-	})
+	}
+
+	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	// Update the user with the matching ID in the "persons" collection
+	_, err = a.DB.Collection("persons").UpdateOne(ctx, bson.M{"_id": objectID}, bson.M{"$set": updates})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
@@ -105,10 +128,17 @@ func (a *PersonHandler) Delete(c *gin.Context) {
 
 	id := c.Param("id")
 
-	err := a.PersonUsecase.Delete(ctx, id)
+	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
+	// Delete the user with the matching ID in the "persons" collection
+	_, err = a.DB.Collection("persons").DeleteOne(ctx, bson.M{"_id": objectID})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
 	c.JSON(http.StatusNoContent, gin.H{"message": "success"})
 }
