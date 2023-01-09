@@ -55,5 +55,5 @@ func main() {
 	apiR := router.Group("/api")
 	delivery.NewPersonHandler(apiR, appContext, personUseCase)
 
-	log.Fatal(router.Run())
+	log.Fatal(router.Run(":3000"))
 }

@@ -16,3 +16,6 @@ app
 # vendor/
 
 .vscode
+
+
+gin-bin
