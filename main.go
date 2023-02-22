@@ -50,7 +50,7 @@ func main() {
 	router.Use(middleware.Recover(appContext))
 
 	apiR := router.Group("/api")
-	handlers.NewPersonHandler(apiR, appContext, db)
+	handlers.NewStudentHandler(apiR, appContext, db)
 
 	log.Fatal(router.Run(":3000"))
 }
