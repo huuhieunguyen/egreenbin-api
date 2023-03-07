@@ -103,7 +103,7 @@ func (a *StudentHandler) Update(c *gin.Context) {
 	}
 	updates := map[string]interface{}{
 		"name":           requestBody.Name,
-		"genre":          requestBody.Genre,
+		"Code":           requestBody.Code,
 		"NumOfCorrect":   requestBody.NumOfCorrect,
 		"NumOfWrong":     requestBody.NumOfWrong,
 		"ImageAvatarUrl": requestBody.ImageAvatarUrl,
