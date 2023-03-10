@@ -97,6 +97,7 @@ func (a *CommentHandler) GetByID(c *gin.Context) {
 // 		c.JSON(http.StatusCreated, gin.H{"data": comment})
 // }
 
+// Create comment will create a new comment based on given request body
 type Response struct {
 	Status  string      `json:"status"`
 	Data    interface{} `json:"data"`

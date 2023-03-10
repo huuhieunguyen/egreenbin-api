@@ -53,6 +53,7 @@ func main() {
 	handlers.NewStudentHandler(apiR, appContext, db)
 	handlers.NewCommentHandler(apiR, appContext, db)
 	handlers.NewTeacherHandler(apiR, appContext, db)
+	handlers.NewGarbageHandler(apiR, appContext, db)
 
 	log.Fatal(router.Run(":3000"))
 }
