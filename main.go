@@ -52,6 +52,7 @@ func main() {
 	apiR := router.Group("/api")
 	handlers.NewStudentHandler(apiR, appContext, db)
 	handlers.NewCommentHandler(apiR, appContext, db)
+	handlers.NewTeacherHandler(apiR, appContext, db)
 
 	log.Fatal(router.Run(":3000"))
 }

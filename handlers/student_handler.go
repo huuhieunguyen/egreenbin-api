@@ -103,12 +103,12 @@ func (a *StudentHandler) Update(c *gin.Context) {
 	}
 	updates := map[string]interface{}{
 		"name":           requestBody.Name,
-		"Code":           requestBody.Code,
-		"NumOfCorrect":   requestBody.NumOfCorrect,
-		"NumOfWrong":     requestBody.NumOfWrong,
-		"ImageAvatarUrl": requestBody.ImageAvatarUrl,
-		"ParentEmail":    requestBody.ParentEmail,
-		"Note":           requestBody.Note,
+		"code":           requestBody.Code,
+		"numOfCorrect":   requestBody.NumOfCorrect,
+		"numOfWrong":     requestBody.NumOfWrong,
+		"imageAvatarUrl": requestBody.ImageAvatarUrl,
+		"parentEmail":    requestBody.ParentEmail,
+		"note":           requestBody.Note,
 	}
 
 	objectID, err := primitive.ObjectIDFromHex(id)
