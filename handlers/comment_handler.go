@@ -30,7 +30,7 @@ func NewCommentHandler(gin *gin.RouterGroup, appCtx component.AppContext, db *mo
 		comments.GET("", handler.GetComments)
 		comments.POST("", handler.Create)
 		comments.GET(":id", handler.GetByID)
-		comments.GET("", handler.getCommentsByStudentID)
+		// comments.GET("", handler.getCommentsByStudentID)
 		comments.PUT(":id", handler.Update)
 		comments.DELETE(":id", handler.Delete)
 	}
@@ -96,35 +96,35 @@ func (a *CommentHandler) GetByID(c *gin.Context) {
 // 	c.JSON(http.StatusOK, common.SimpleSuccessResponse(studentID))
 // }
 
-func (a *CommentHandler) getCommentsByStudentID(c *gin.Context) {
-	studentID := c.Query("studentID")
+// func (a *CommentHandler) getCommentsByStudentID(c *gin.Context) {
+// 	studentID := c.Query("studentID")
 
-	// Query the comments collection in MongoDB to find all comments by given studentID
-	comments, err := a.DB.Collection("comments").Find(context.TODO(), bson.M{"_studentID": studentID})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Could not retrieve comments",
-		})
-		return
-	}
+// 	// Query the comments collection in MongoDB to find all comments by given studentID
+// 	comments, err := a.DB.Collection("comments").Find(context.TODO(), bson.M{"_studentID": studentID})
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{
+// 			"error": "Could not retrieve comments",
+// 		})
+// 		return
+// 	}
 
-	var commentList []models.Comment
-	defer comments.Close(context.TODO())
+// 	var commentList []models.Comment
+// 	defer comments.Close(context.TODO())
 
-	// Iterate through comments and add to list
-	for comments.Next(context.TODO()) {
-		var comment models.Comment
-		err := comments.Decode(&comment)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Could not decode comments",
-			})
-			return
-		}
-		commentList = append(commentList, comment)
-	}
-	c.JSON(http.StatusOK, commentList)
-}
+// 	// Iterate through comments and add to list
+// 	for comments.Next(context.TODO()) {
+// 		var comment models.Comment
+// 		err := comments.Decode(&comment)
+// 		if err != nil {
+// 			c.JSON(http.StatusInternalServerError, gin.H{
+// 				"error": "Could not decode comments",
+// 			})
+// 			return
+// 		}
+// 		commentList = append(commentList, comment)
+// 	}
+// 	c.JSON(http.StatusOK, commentList)
+// }
 
 // Create comment will create a new comment based on given request body
 // func (a *CommentHandler) Create(c *gin.Context) {
