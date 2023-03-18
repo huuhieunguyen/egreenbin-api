@@ -30,6 +30,7 @@ func NewGarbageHandler(gin *gin.RouterGroup, appCtx component.AppContext, db *mo
 		garbage.POST("", handler.Create)
 		garbage.GET("", handler.GetGarbageThrow)
 		garbage.GET(":id", handler.GetByID)
+		garbage.DELETE(":id", handler.DeleteByID)
 	}
 }
 
@@ -102,4 +103,25 @@ func (a *GarbageHandler) Create(c *gin.Context) {
 		Message: "Garbage throwing has been created.",
 	}
 	c.JSON(http.StatusCreated, res)
+}
+
+// Delete will delete a student by given id
+func (a *GarbageHandler) DeleteByID(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	id := c.Param("id")
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	// Delete the collection with the matching ID in the "garbage" collection
+	_, err = a.DB.Collection("garbage").DeleteOne(ctx, bson.M{"_id": objectID})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	c.JSON(http.StatusNoContent, gin.H{"message": "success"})
 }
