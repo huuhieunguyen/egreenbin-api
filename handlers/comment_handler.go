@@ -37,16 +37,43 @@ func NewCommentHandler(gin *gin.RouterGroup, appCtx component.AppContext, db *mo
 }
 
 // FetchArticle will fetch the article based on given params
+// func (a *CommentHandler) GetComments(c *gin.Context) {
+// 	ctx := c.Request.Context()
+// 	var comments []models.Comment
+// 	cursor, err := a.DB.Collection("comments").Find(context.TODO(), bson.M{})
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+// 	if err = cursor.All(ctx, &comments); err != nil {
+// 		c.JSON(http.StatusBadRequest, err)
+// 		return
+// 	}
+
+//		c.JSON(http.StatusOK, common.SimpleSuccessResponse(comments))
+//	}
 func (a *CommentHandler) GetComments(c *gin.Context) {
 	ctx := c.Request.Context()
 	var comments []models.Comment
 	cursor, err := a.DB.Collection("comments").Find(context.TODO(), bson.M{})
 	if err != nil {
-		panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
-	if err = cursor.All(ctx, &comments); err != nil {
-		c.JSON(http.StatusBadRequest, err)
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var comment models.Comment
+		if err := cursor.Decode(&comment); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		comments = append(comments, comment)
+	}
+
+	if err := cursor.Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
