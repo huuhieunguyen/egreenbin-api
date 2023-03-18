@@ -5,17 +5,11 @@ import (
 )
 
 type Comment struct {
-	ID      primitive.ObjectID `bson:"_id" json:"id" `
-	Student Student            `bson:"student,inline" json:"Student"`
-	Content string             `bson:"content" json:"Content"`
+	ID        primitive.ObjectID `bson:"_id" json:"id" `
+	StudentID primitive.ObjectID `bson:"_studentID" json:"studentID"`
+	Content   string             `bson:"content" json:"content"`
 	// DateSort   primitive.DateTime `bson:"dateSort" json:"DateSort"`
 	Type        string             `bson:"type" json:"type"`
-	DateCreated primitive.DateTime `bson:"dateCreated" json:"DateCreated"`
-	DateUpdated primitive.DateTime `bson:"dateUpdated" json:"DateUpdated"`
-
-	// String idStudent; // id of student of comment
-	// String content; // content of comment
-	// String dateSort; // xem class dateSort, co the tra ve 3 kieu: date, week, month
-	// String type;	// date, week, month
-	// DateTime? dateCreate; // date create of comment
+	DateCreated primitive.DateTime `bson:"dateCreated" json:"dateCreated"`
+	DateUpdated primitive.DateTime `bson:"dateUpdated" json:"dateUpdated"`
 }

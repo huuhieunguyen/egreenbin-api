@@ -30,6 +30,7 @@ func NewCommentHandler(gin *gin.RouterGroup, appCtx component.AppContext, db *mo
 		comments.GET("", handler.GetComments)
 		comments.POST("", handler.Create)
 		comments.GET(":id", handler.GetByID)
+		// comments.GET("", handler.getCommentsByStudentID)
 		comments.PUT(":id", handler.Update)
 		comments.DELETE(":id", handler.Delete)
 	}
@@ -63,7 +64,7 @@ func (a *CommentHandler) GetByID(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, nil)
 		return
 	}
-	// Find the user with the matching ID in the "comments" collection
+	// Find the comment with the matching ID in the "comments" collection
 	var comment models.Comment
 	err = a.DB.Collection("comments").FindOne(ctx, bson.M{"_id": objectID}).Decode(&comment)
 	if err != nil {
@@ -72,6 +73,58 @@ func (a *CommentHandler) GetByID(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, common.SimpleSuccessResponse(comment))
 }
+
+// Query Comment By StudentID will get comment by given student id
+// func (a *CommentHandler) GetByStuID(c *gin.Context) {
+// 	ctx := c.Request.Context()
+
+// 	// stu_id := c.Param("_studentID")
+// 	stu_id := c.Query("_studentID")
+
+// 	objectID, err := primitive.ObjectIDFromHex(stu_id)
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, nil)
+// 		return
+// 	}
+// 	// Find the user with the matching ID in the "comments" collection
+// 	var studentID models.Comment
+// 	err = a.DB.Collection("comments").FindOne(ctx, bson.M{"_id": objectID}).Decode(&studentID)
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, nil)
+// 		return
+// 	}
+// 	c.JSON(http.StatusOK, common.SimpleSuccessResponse(studentID))
+// }
+
+// func (a *CommentHandler) getCommentsByStudentID(c *gin.Context) {
+// 	studentID := c.Query("studentID")
+
+// 	// Query the comments collection in MongoDB to find all comments by given studentID
+// 	comments, err := a.DB.Collection("comments").Find(context.TODO(), bson.M{"_studentID": studentID})
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{
+// 			"error": "Could not retrieve comments",
+// 		})
+// 		return
+// 	}
+
+// 	var commentList []models.Comment
+// 	defer comments.Close(context.TODO())
+
+// 	// Iterate through comments and add to list
+// 	for comments.Next(context.TODO()) {
+// 		var comment models.Comment
+// 		err := comments.Decode(&comment)
+// 		if err != nil {
+// 			c.JSON(http.StatusInternalServerError, gin.H{
+// 				"error": "Could not decode comments",
+// 			})
+// 			return
+// 		}
+// 		commentList = append(commentList, comment)
+// 	}
+// 	c.JSON(http.StatusOK, commentList)
+// }
 
 // Create comment will create a new comment based on given request body
 // func (a *CommentHandler) Create(c *gin.Context) {
@@ -108,12 +161,15 @@ func (a *CommentHandler) Create(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	var comment models.Comment
+	// var student models.Student
 	if err := json.NewDecoder(c.Request.Body).Decode(&comment); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	comment.ID = primitive.NewObjectID()
+	// student.ID = primitive.NewObjectID()
+
 	now := primitive.NewDateTimeFromTime(time.Now())
 	comment.DateCreated = now
 	comment.DateUpdated = now
@@ -143,7 +199,6 @@ func (a *CommentHandler) Update(c *gin.Context) {
 		return
 	}
 	updates := map[string]interface{}{
-		"student": requestBody.Student,
 		"content": requestBody.Content,
 		// "DateSort":   requestBody.DateSort,
 		"type": requestBody.Type,
@@ -157,7 +212,7 @@ func (a *CommentHandler) Update(c *gin.Context) {
 		return
 	}
 
-	// Update the user with the matching ID in the "comments" collection
+	// Update the document with the matching ID in the "comments" collection
 	_, err = a.DB.Collection("comments").UpdateOne(ctx, bson.M{"_id": objectID}, bson.M{"$set": updates})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)
