@@ -11,5 +11,6 @@ type Comment struct {
 	// DateSort   primitive.DateTime `bson:"dateSort" json:"DateSort"`
 	Type        string             `bson:"type" json:"type"`
 	DateCreated primitive.DateTime `bson:"dateCreated" json:"dateCreated"`
-	DateUpdated primitive.DateTime `bson:"dateUpdated" json:"dateUpdated"`
+	// DateUpdated primitive.DateTime `bson:"dateUpdated" json:"dateUpdated"`
+	DateUpdated string `bson:"dateUpdated" json:"dateUpdated"`
 }

@@ -172,7 +172,7 @@ func (a *CommentHandler) Create(c *gin.Context) {
 
 	now := primitive.NewDateTimeFromTime(time.Now())
 	comment.DateCreated = now
-	comment.DateUpdated = now
+	// comment.DateUpdated = now
 
 	if _, err := a.DB.Collection("comments").InsertOne(ctx, comment); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -203,7 +203,8 @@ func (a *CommentHandler) Update(c *gin.Context) {
 		// "DateSort":   requestBody.DateSort,
 		"type": requestBody.Type,
 		// "dateCreated": requestBody.DateCreated,
-		"dateUpdated": primitive.NewDateTimeFromTime(time.Now()),
+		// "dateUpdated": primitive.NewDateTimeFromTime(time.Now()),
+		"dataUpdated": requestBody.DateUpdated,
 	}
 
 	objectID, err := primitive.ObjectIDFromHex(id)
