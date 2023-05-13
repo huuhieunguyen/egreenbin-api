@@ -33,46 +33,6 @@ func NewGarbageHandler(gin *gin.RouterGroup, appCtx component.AppContext, db *mo
 	}
 }
 
-// func (a *GarbageHandler) UpdateStudentRightWrong(c *gin.Context) {
-// 	ctx := c.Request.Context()
-
-// 	studentID, err := primitive.ObjectIDFromHex(c.Param("student_id"))
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	// Check if student exists
-// 	var student models.Student
-// 	err = a.DB.Collection("students").FindOne(context.Background(), bson.M{"_id": studentID}).Decode(&student)
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Student not found"})
-// 		return
-// 	}
-
-// 	// Parse the request body as a Garbage struct
-// 	var note models.Garbage
-// 	if err := c.BindJSON(&note); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	// Update the student's NumOfCorrect or NumOfWrong field based on the IsRight flag in the Garbage
-// 	var update bson.M
-// 	if note.IsRight {
-// 		update = bson.M{"$inc": bson.M{"num_of_correct": 1}}
-// 	} else {
-// 		update = bson.M{"$inc": bson.M{"num_of_wrong": 1}}
-// 	}
-// 	_, err = a.DB.Collection("students").UpdateOne(ctx, bson.M{"_id": studentID}, update)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusOK, gin.H{"message": "Student added to course"})
-// }
-
 // Create garbage will create a new garbage based on given request body
 
 type ResponseGarbageThrow struct {
@@ -95,11 +55,10 @@ func (a *GarbageHandler) Create(c *gin.Context) {
 	garbage.DateThrow = primitive.NewDateTimeFromTime(time.Now())
 
 	student_id := garbage.StudentID
-	// studentID, err := primitive.ObjectIDFromHex(c.Param("student_id"))
 	studentID, err := primitive.ObjectIDFromHex(student_id)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"errorHaaHaa": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -123,8 +82,6 @@ func (a *GarbageHandler) Create(c *gin.Context) {
 		Message: "Garbage throwing has been created.",
 	}
 	c.JSON(http.StatusCreated, res)
-
-	////////////////////////////////////////////////////////////////////////////////////
 
 	// Update the student's NumOfCorrect or NumOfWrong field based on the IsRight flag in the Garbage
 	var update bson.M
