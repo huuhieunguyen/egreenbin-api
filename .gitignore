@@ -16,6 +16,6 @@ app
 # vendor/
 
 .vscode
-
+.env
 
 gin-bin
