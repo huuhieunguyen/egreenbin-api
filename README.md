@@ -127,6 +127,10 @@ This project requires the following dependencies to be installed:
 
 If you would like to contribute to this project, please fork the repository and make a pull request.
 
+## Other References
+
+Here is the reference to other components of our whole project: https://github.com/GDSC-UIT/eGreenBin 
+
 ## Authors
 
 - ******************************Nguyen Huu Hieu******************************
